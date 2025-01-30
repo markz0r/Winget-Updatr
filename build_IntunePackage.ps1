@@ -14,18 +14,26 @@ Set-Location -Path $PSScriptRoot
 $NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
 
 #Remove any existing intunewin packages in DEPLOYABLE based on the extension
-Get-ChildItem -Path .\DEPLOYABLE\ -Filter *.intune | Remove-Item -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path .\DEPLOYABLE\ -Filter *.intunewin | Remove-Item -Force -ErrorAction SilentlyContinue
 
 $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $APPID = $_
-    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intune"
-    Write-Output 'Install command:  '
+    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intunewin" -q
+    $README_FILE = ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP-README.md"
+    Write-Output '# Winget-Updatr: ' + $APPID | Out-File -FilePath $README_FILE -Force
+    Write-Output '## Install command:' | Out-File -FilePath $README_FILE -Append
     $INSTALL_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'install' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
-    Write-Output $INSTALL_STRING
-    Write-Output 'Uninstall command:  '
+    Write-Output '```PowerShell' | Out-File -FilePath $README_FILE -Append
+    Write-Output $INSTALL_STRING | Out-File -FilePath $README_FILE -Append
+    Write-Output '```' | Out-File -FilePath $README_FILE -Append
+    Write-Output '## Uninstall command:' | Out-File -FilePath $README_FILE -Append
+    Write-Output '```PowerShell' | Out-File -FilePath $README_FILE -Append
     $UNINSTALL_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'uninstall' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
-    Write-Output $UNINSTALL_STRING
-    Write-Output 'Detect command:  '
+    Write-Output $UNINSTALL_STRING | Out-File -FilePath $README_FILE -Append
+    Write-Output '```' | Out-File -FilePath $README_FILE -Append
+    Write-Output '## Detect command:' | Out-File -FilePath $README_FILE -Append
+    Write-Output '```PowerShell' | Out-File -FilePath $README_FILE -Append
     $DETECT_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr-Detect.ps1' + " -APPID '$APPID' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
-    Write-Output $DETECT_STRING
+    Write-Output $DETECT_STRING | Out-File -FilePath $README_FILE -Append
+    Write-Output '```' | Out-File -FilePath $README_FILE -Append
 }
