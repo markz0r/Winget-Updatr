@@ -11,12 +11,12 @@ git pull
 $TIMESTAMP = Get-Date -Format 'yyyyMMdd_HHmmss'
 # Ensure we are in the script directory
 Set-Location -Path $PSScriptRoot
+$NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
 
 $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $APPID = $_
     IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o .\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intune
     Write-Output 'Install command:  '
-    $NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
     Write-Output '   $APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'install' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'"
     Write-Output 'Uninstall command:  '
     Write-Output '   $APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'uninstall' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'"
