@@ -13,13 +13,19 @@ $TIMESTAMP = Get-Date -Format 'yyyyMMdd_HHmmss'
 Set-Location -Path $PSScriptRoot
 $NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
 
+#Remove any existing intunewin packages in DEPLOYABLE based on the extension
+Get-ChildItem -Path .\DEPLOYABLE\ -Filter *.intune | Remove-Item -Force -ErrorAction SilentlyContinue
+
 $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $APPID = $_
-    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o .\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intune
+    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intune"
     Write-Output 'Install command:  '
-    Write-Output '   $APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'install' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'"
+    $INSTALL_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'install' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
+    Write-Output $INSTALL_STRING
     Write-Output 'Uninstall command:  '
-    Write-Output '   $APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'uninstall' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'"
+    $UNINSTALL_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'uninstall' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
+    Write-Output $UNINSTALL_STRING
     Write-Output 'Detect command:  '
-    Write-Output '   $APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr-Detect.ps1' + " -APPID '$APPID' -NOTIFICATION_URL '$NOTIFICATION_URL'"
+    $DETECT_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr-Detect.ps1' + " -APPID '$APPID' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
+    Write-Output $DETECT_STRING
 }
