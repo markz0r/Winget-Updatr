@@ -1,0 +1,6 @@
+*.ini
+*.conf
+*.log
+z_Archive/
+z_Archive/**
+*.intune
