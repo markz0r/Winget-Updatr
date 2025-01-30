@@ -13,8 +13,9 @@ $TIMESTAMP = Get-Date -Format 'yyyyMMdd_HHmmss'
 Set-Location -Path $PSScriptRoot
 $NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
 
-#Remove any existing intunewin packages in DEPLOYABLE based on the extension
-Get-ChildItem -Path .\DEPLOYABLE\ -Folder | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+# Forcefully remove all contents of the DEPLOYABLE directory
+Remove-Item -Path .\DEPLOYABLE\* -Recurse -Force -ErrorAction SilentlyContinue
+
 
 $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $APPID = $_
