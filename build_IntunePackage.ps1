@@ -14,12 +14,16 @@ Set-Location -Path $PSScriptRoot
 $NOTIFICATION_URL = op read 'op://ZOAK/SSG_OSM_WINGET_NOTIFYR_URL/notesPlain'
 
 #Remove any existing intunewin packages in DEPLOYABLE based on the extension
-Get-ChildItem -Path .\DEPLOYABLE\ -Filter *.intunewin | Remove-Item -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path .\DEPLOYABLE\ -Folder | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
 $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $APPID = $_
-    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP.intunewin" -q
-    $README_FILE = ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP-README.md"
+    IntuneWinAppUtil.exe -c .\src\ -s .\src\Winget-Updatr.ps1 -o ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP" -q
+    # Rename the Winget-Updatr.intunewin to the APPID-Winget-Updatr-TIMESTAMP.intunewin
+    $INTUNEWIN_FILE = ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP\Winget-Updatr.intunewin"
+    $NEW_INTUNEWIN_FILE = ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP\$APPID-Winget-Updatr-$TIMESTAMP.intunewin"
+    Rename-Item -Path $INTUNEWIN_FILE -NewName $NEW_INTUNEWIN_FILE -Force
+    $README_FILE = ".\DEPLOYABLE\$APPID-Winget-Updatr-$TIMESTAMP\$APPID-Winget-Updatr-$TIMESTAMP-README.md"
     Write-Output '# Winget-Updatr: ' + $APPID | Out-File -FilePath $README_FILE -Force
     Write-Output '## Install command:' | Out-File -FilePath $README_FILE -Append
     $INSTALL_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr.ps1' + " -APPID '--id $APPID' -OPERATION 'install' -ARGS '-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
@@ -36,4 +40,12 @@ $WINGET_MANAGED_PACKAGES | ForEach-Object {
     $DETECT_STRING = '$APPID = "' + $APPID + '" && powershell -ExecutionPolicy Bypass -File Winget-Updatr-Detect.ps1' + " -APPID '$APPID' -NOTIFICATION_URL '$NOTIFICATION_URL'" -replace '  ', ' ' -replace "`r`n", ' '
     Write-Output $DETECT_STRING | Out-File -FilePath $README_FILE -Append
     Write-Output '```' | Out-File -FilePath $README_FILE -Append
+}
+
+# List the intune packages and their readme files
+Get-ChildItem -Path .\DEPLOYABLE\ -Directory | ForEach-Object {
+    $INTUNEWIN_FILE = $_.FullName + '\' + $_.Name + '.intunewin'
+    $README_FILE = $_.FullName + '\' + $_.Name + '-README.md'
+    Write-Output "IntuneWinAppUtil.exe -Info $INTUNEWIN_FILE"
+    Write-Output "Get-Content -Path $README_FILE"
 }
