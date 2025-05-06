@@ -1,4 +1,14 @@
-$WINGET_MANAGED_PACKAGES = @('Amazon.AWSCLI', '7zip.7zip', 'Microsoft.PowerShell', 'Microsoft.WindowsApp', 'Microsoft.WindowsTerminal', 'Microsoft.VisualStudioCode', 'Python.Python.3.13', 'TeamViewer.TeamViewer')
+$WINGET_MANAGED_PACKAGES = @(
+    '7zip.7zip',
+    'Amazon.AWSCLI',
+    'AutoHotkey.AutoHotkey',
+    'Microsoft.PowerShell',
+    'Microsoft.WindowsApp',
+    'Microsoft.WindowsTerminal',
+    'Microsoft.VisualStudioCode',
+    'Python.Python.3.13',
+    'TeamViewer.TeamViewer'
+)
 winget install --id Microsoft.Win32ContentPrepTool -e
 Write-Debug 'Ensure that you have pulled the latest versio from source'
 #Check for changes at origin ahead of packaging

@@ -177,9 +177,10 @@ catch {
     if ($NOTIFICATION_URL) {
         Send-TeamsNotification -outcome_message 'Failed' -client_ip "$ENV:COMPUTERNAME" -script_name $SCRIPT_NAME -log_file "$LOG_FILE" -notify_url $NOTIFICATION_URL
     }
+    Write-Error 'Failed to run Update-Winget. Exiting...'
     exit 1
 }   
-Write-Debug "Running $SCRIPT_NAME with arguments at $TIMESTAMP :"
+Write-Debug "Running $SCRIPT_NAME with arguments at ${TIMESTAMP}:"
 Write-Debug "APPID: $APPID [$APPID_CLEAN]"
 Write-Debug "OPERATION: $OPERATION"
 Write-Debug "ARGS: $ARGS"

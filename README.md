@@ -11,13 +11,9 @@
 .\src\Winget-Updatr.ps1 -APPID "7zip.7zip" -OPERATION "install" -ARGS "-e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity"
 ```
 
-This is just a wrapper for winget, valid OPERATIONS + ARGS see: [Winget CLI README](https://github.com/microsoft/winget-cli/blob/master/README.md)
+- This is just a wrapper for winget, valid OPERATIONS + ARGS see: [Winget CLI README](https://github.com/microsoft/winget-cli/blob/master/README.md)
 
 ## For Intune Deployment
-
-### To package:
-
-1. Run the packaging command (details to be added).
 
 ### Test the Installation Manually
 
